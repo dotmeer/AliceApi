@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace dotmeer.AliceApi.Api.Controllers;
 
 [ApiController]
-[Route("wbgateway/v1.0")]
+[Route("aliceapi/v1.0")]
 public sealed class DevicesController : ControllerBase
 {
     private readonly IDevicesRepository _devicesRepository;
@@ -23,33 +23,6 @@ public sealed class DevicesController : ControllerBase
     {
         _devicesRepository = devicesRepository;
         _userService = userService;
-    }
-
-    // TODO: вынести в отдельный контроллер
-    [HttpHead]
-    public async Task<IActionResult> HealthCheck(
-        [FromHeader(Name = "Authorization")] string? token,
-        CancellationToken cancellationToken)
-    {
-        await _userService.GetUserIdAsync(token, cancellationToken);
-        
-        return Ok();
-    }
-
-    // TODO: вынести в отдельный контроллер
-    [HttpPost("user/unlink")]
-    public async Task<IActionResult> UnlinkUser(
-        [FromHeader(Name = "Authorization")] string? token,
-        [FromHeader(Name = "X-Request-Id")] string? requestId,
-        CancellationToken cancellationToken)
-    {
-        await _userService.GetUserIdAsync(token, cancellationToken);
-        
-        return Ok(
-            new AliceResponse
-            {
-                RequestId = requestId!
-            });
     }
 
     [HttpGet("user/devices")]

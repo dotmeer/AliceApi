@@ -15,6 +15,8 @@ internal sealed class Startup
 {
     private readonly IConfiguration _configuration;
 
+    private const string Prefix = "aliceapi";
+
     public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -24,7 +26,6 @@ internal sealed class Startup
     {
         services
             .AddControllers()
-            .AddControllersAsServices()
             .AddJsonOptions(_ =>
             {
                 _.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
@@ -42,7 +43,10 @@ internal sealed class Startup
             });
 
         services
-            .AddRouting(options => { options.AppendTrailingSlash = true; });
+            .AddRouting(options =>
+            {
+                options.AppendTrailingSlash = true;
+            });
 
         services
             .SetupYandexAuth(_configuration)
@@ -57,13 +61,13 @@ internal sealed class Startup
     {
         app.UseSwagger(swaggerOptions =>
         {
-            swaggerOptions.RouteTemplate = "/wbgateway/swagger/{documentName}/swagger.json";
+            swaggerOptions.RouteTemplate = $"/{Prefix}/swagger/{{documentName}}/swagger.json";
         });
 
         app.UseSwaggerUI(swaggerUiOptions =>
         {
-            swaggerUiOptions.RoutePrefix = "wbgateway/swagger";
-            swaggerUiOptions.SwaggerEndpoint("/wbgateway/swagger/v1/swagger.json", "API");
+            swaggerUiOptions.RoutePrefix = $"{Prefix}/swagger";
+            swaggerUiOptions.SwaggerEndpoint($"/{Prefix}/swagger/v1/swagger.json", "API");
             swaggerUiOptions.DisplayRequestDuration();
         });
 

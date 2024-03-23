@@ -3,10 +3,11 @@
         "AliceApi": {
             "commandName": "Project",
             "launchBrowser": true,
-            "launchUrl": "wbgateway/swagger",
+            "launchUrl": "aliceapi/swagger",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "PORT": "8000"
+                "PORT": "8000",
+                "UserService__AllowedUsers__0": "SidorovSY@yandex.ru"
             },
             "applicationUrl": "http://localhost:8000"
         }
