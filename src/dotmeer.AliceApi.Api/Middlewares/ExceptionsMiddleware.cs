@@ -27,7 +27,7 @@ public sealed class ExceptionsMiddleware : IMiddleware
         catch (Exception ex)
         {
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            _logger.LogError(ex, context.Request.Headers["X-Request-Id"]);
+            _logger.LogError(ex, "Unhandled exception");
         }
     }
 }

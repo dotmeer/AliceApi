@@ -24,6 +24,9 @@ public sealed class LoggingMiddleware : IMiddleware
     
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        context.Request.Headers.TryGetValue("X-Request-Id", out var requestId);
+        using var scope = _logger.BeginScope("Request id = '{RequestId}'", requestId.ToString());
+
         var shouldLog = !_excludedPaths.Any(_ => context.Request.Path.ToString().Contains(_));
 
         var body = shouldLog
@@ -38,14 +41,13 @@ public sealed class LoggingMiddleware : IMiddleware
         }
 
         context.Request.Headers.TryGetValue("Authorization", out var authHeader);
-        context.Request.Headers.TryGetValue("X-Request-Id", out var requestId);
-
-        _logger.LogInformation($"Method {context.Request.Method}. " +
-                               $"Path: {context.Request.Path}{context.Request.QueryString}. " +
-                               $"Authorization: {authHeader}. " +
-                               $"RequestId: {requestId}. " +
-                               $"Status code: {context.Response.StatusCode}. " +
-                               $"Body: {body}. ");
+        
+        _logger.LogInformation("{Method} {Path}{Query} - {StatusCode} - Body: {Body}.",
+            context.Request.Method,
+            context.Request.Path,
+            context.Request.QueryString,
+            context.Response.StatusCode,
+            body);
     }
 
     private async Task<string> ReadBodyFromRequest(HttpRequest request, CancellationToken cancellationToken)

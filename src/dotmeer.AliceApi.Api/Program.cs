@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using dotmeer.AliceApi.Infrastructure.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -24,9 +25,8 @@ public class Program
             })
             .ConfigureLogging(loggingBuilder =>
             {
-                // TODO: привести логи к формату, в котором их понимает yandex
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddSimpleConsole(_ => { _.SingleLine = true; });
+                loggingBuilder.AddYandexFormatted();
             })
             .UseDefaultServiceProvider(serviceProviderOptions =>
             {

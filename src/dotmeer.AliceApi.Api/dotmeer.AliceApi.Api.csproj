@@ -12,6 +12,7 @@
     <ItemGroup>
       <ProjectReference Include="..\dotmeer.AliceApi.Application\dotmeer.AliceApi.Application.csproj" />
       <ProjectReference Include="..\dotmeer.AliceApi.Auth\dotmeer.AliceApi.Auth.csproj" />
+      <ProjectReference Include="..\dotmeer.AliceApi.Infrastructure.Logging\dotmeer.AliceApi.Infrastructure.Logging.csproj" />
       <ProjectReference Include="..\dotmeer.AliceApi.Models\dotmeer.AliceApi.Models.csproj" />
     </ItemGroup>
 
