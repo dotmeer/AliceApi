@@ -11,6 +11,5 @@ public interface IUserService
     /// </summary>
     /// <param name="token">Токен авторизации</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    /// <exception cref="UnauthorizedAccessException">Если не удалось проверить токен или пользователю нельзя пользоваться сервисом</exception>
-    Task<string> GetUserIdAsync(string? token, CancellationToken cancellationToken);
+    Task<string?> GetUserIdAsync(string? token, CancellationToken cancellationToken);
 }

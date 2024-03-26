@@ -1,5 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using dotmeer.AliceApi.Api.Authorization;
 using dotmeer.AliceApi.Api.Middlewares;
 using dotmeer.AliceApi.Application;
 using dotmeer.AliceApi.Auth;
@@ -11,6 +13,7 @@ using Microsoft.OpenApi.Models;
 
 namespace dotmeer.AliceApi.Api;
 
+// TODO: воркер для самовызова контейнера - чтобы не гас в яндексе
 internal sealed class Startup
 {
     private readonly IConfiguration _configuration;
@@ -40,6 +43,33 @@ internal sealed class Startup
                 options.CustomSchemaIds(_ => _.FullName);
                 options.UseAllOfToExtendReferenceSchemas();
                 options.SupportNonNullableReferenceTypes();
+                options.AddSecurityDefinition("Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                },
+                                Scheme = "Bearer",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header,
+
+                            },
+                            new List<string>()
+                        }
+                    });
             });
 
         services
@@ -51,6 +81,17 @@ internal sealed class Startup
         services
             .SetupYandexAuth(_configuration)
             .SetupApplication();
+
+        services
+            .AddAuthentication()
+            .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(AuthConstants.SchemeName, _ => { });
+        
+        services
+            .AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthConstants.SchemeName, policy =>
+                    policy.RequireClaim(AuthConstants.UserIdClaim));
+            });
 
         services
             .AddScoped<LoggingMiddleware>()
@@ -74,7 +115,9 @@ internal sealed class Startup
         app.UseMiddleware<LoggingMiddleware>()
             .UseMiddleware<ExceptionsMiddleware>();
 
-        app.UseRouting();
+        app.UseRouting()
+            .UseAuthentication()
+            .UseAuthorization();
 
         app.UseEndpoints(endpoints =>
         {

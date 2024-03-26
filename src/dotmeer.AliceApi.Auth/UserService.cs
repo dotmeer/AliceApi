@@ -25,16 +25,13 @@ internal sealed class UserService : IUserService
         _users = new ConcurrentDictionary<string, YandexUserInfo>();
     }
 
-    // TODO: возможно переделать на "стандартный" функционал авторизации asp.net с кастомным фильтром, который будет делать вот это вот
-    public async Task<string> GetUserIdAsync(string? token, CancellationToken cancellationToken)
+    public async Task<string?> GetUserIdAsync(string? token, CancellationToken cancellationToken)
     {
-        if (token is null)
+        if (string.IsNullOrEmpty(token))
         {
-            throw new UnauthorizedAccessException();
+            return null;
         }
-
-        token = token.Replace("Bearer ", "");
-
+        
         YandexUserInfo? userInfo;
         if (_users.TryGetValue(token, out userInfo))
         {
@@ -45,12 +42,12 @@ internal sealed class UserService : IUserService
 
         if (userInfo is null)
         {
-            throw new UnauthorizedAccessException();
+            return null;
         }
 
         if (!_settings.AllowedUsers.Contains(userInfo.DefaultEmail, StringComparer.OrdinalIgnoreCase))
         {
-            throw new UnauthorizedAccessException();
+            return null;
         }
 
         _users.AddOrUpdate(
